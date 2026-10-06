@@ -1,0 +1,184 @@
+{
+  "info": {
+    "name": "JSONPlaceholder QA Portfolio",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Portfolio checks for public JSONPlaceholder API."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://jsonplaceholder.typicode.com"
+    }
+  ],
+  "item": [
+    {
+      "name": "GET user 1",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/users/1",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "users",
+            "1"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('Response time < 2000 ms', () => pm.expect(pm.response.responseTime).to.be.below(2000));",
+              "const j = pm.response.json();",
+              "pm.test('Required user fields exist', () => { pm.expect(j).to.have.property('id', 1); pm.expect(j).to.have.property('email'); pm.expect(j).to.have.property('name'); });",
+              "pm.test('Email has @', () => pm.expect(j.email).to.include('@'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET posts filtered by userId",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/posts?userId=1",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "posts?userId=1"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "const rows = pm.response.json();",
+              "pm.test('Returns a non-empty array', () => { pm.expect(rows).to.be.an('array'); pm.expect(rows.length).to.be.above(0); });",
+              "pm.test('Every row belongs to userId=1', () => rows.forEach(r => pm.expect(r.userId).to.eql(1)));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST create post",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/posts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "posts"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"title\": \"qa portfolio\", \"body\": \"api test\", \"userId\": 1}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+              "const j = pm.response.json();",
+              "pm.test('Response mirrors submitted fields', () => { pm.expect(j.title).to.eql('qa portfolio'); pm.expect(j.body).to.eql('api test'); pm.expect(j.userId).to.eql(1); });",
+              "pm.test('Generated id exists', () => pm.expect(j).to.have.property('id'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PUT update post",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/posts/1",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "posts",
+            "1"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"id\": 1, \"title\": \"updated by QA\", \"body\": \"full update\", \"userId\": 1}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('Updated payload is returned', () => { pm.expect(j.id).to.eql(1); pm.expect(j.title).to.eql('updated by QA'); pm.expect(j.userId).to.eql(1); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET non-existing post",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/posts/999999",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "posts",
+            "999999"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+              "pm.test('Body is valid JSON object', () => pm.expect(pm.response.json()).to.be.an('object'));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

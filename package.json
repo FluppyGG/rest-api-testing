@@ -1,0 +1,11 @@
+{
+  "name": "rest-api-testing-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "newman run postman/jsonplaceholder-qa.postman_collection.json -e postman/local.postman_environment.json --reporters cli"
+  },
+  "devDependencies": {
+    "newman": "^6.2.1"
+  }
+}
